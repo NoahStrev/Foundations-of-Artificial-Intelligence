@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta content="text/html; charset=windows-1252" http-equiv="Content-Type">
+<script src="https://unpkg.com/brain.js"></script> 
+</head>
+
+<body>
+
+<h2> Whose tweet?</h2>
+
+
+<script>
+// Would normally place in a file but for example:
+const trainingData = [
+   { input: "Inside Chi's nursery                                                    ", output: { kardashian: 1} },
+   { input: "Why I died my hair pink                                                 ", output: { kardashian: 1} },
+   { input: "Feeling Blue wearing @kkwbeauty powder contour in medium contour        ", output: { kardashian: 1} },
+   { input: "I will be interviewed by Judge Jeanine on Fox News at 9:00 P.M. Enjoy!  ", output: { trump: 1} },
+   { input: "FBI and James Comey used a fake dossier to get an illegal FISA warrant  ", output: { trump: 1} }, 
+   { input: "God bless the United States of America                                  ", output: { trump: 1} }, 
+   { input: "Thank you to the great men and women of the United States @SecretService", output: { trump: 1} }
+]
+
+// When dealing with string data -- more work because 
+// neural net wants to work with numbers -- between 0 and 1 inclusive
+// so need to be able to encode the input
+// Can use the ASCII equivalent of a character and then divide by 255
+let trainedNet;
+
+function encode(stringval) {
+  return stringval.split('').map(x => (x.charCodeAt(0)/255));
+}
+
+function processTrainingData(data) {
+   return data.map( d => { return {
+                                   input: encode(d.input),
+                                   output: d.output
+                                   }
+                   })
+}
+
+function train(data) {
+  let net = new brain.NeuralNetwork();
+  net.train(processTrainingData(data));
+  trainedNet = net.toFunction();
+  alert('Finished training');
+}
+
+function execute(input) {
+  let results = trainedNet(encode(input));
+  let output;
+  alert('results:  ' + results.trump + '     ' + results.kardashian)
+  results.trump > results.kardashian ? output = 'trump' : output = 'Kardasian';
+  return output;
+}
+
+train(trainingData);
+
+
+// whose Tweet?
+alert(execute("These aren't real.  Kanye would never write Yeezy on the side"));
+alert(execute("Biden and the democrats are coming after your guns           "));
+
+</script>
+</body>
+</html>
